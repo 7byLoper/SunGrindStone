@@ -1,0 +1,5 @@
+default_price: 600 #Дефолтная цена за снятие зачарования, если его нет в списке
+enchants:
+  DAMAGE_ALL: 350
+  FIRE_ASPECT: 400
+

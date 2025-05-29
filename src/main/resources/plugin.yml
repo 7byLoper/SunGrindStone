@@ -1,0 +1,9 @@
+name: SunGrindStone
+version: '${project.version}'
+main: ru.loper.sungrindstone.SunGrindStone
+api-version: '1.16'
+authors: [Loper]
+description: Добавит на ваш сервер кастомное точило
+website: t.me/bySunDev
+commands:
+  grindstone: {}

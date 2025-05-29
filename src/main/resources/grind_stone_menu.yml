@@ -1,0 +1,52 @@
+title: 'Точило'
+rows: 5
+enchants_slots: [ 12,13,14,15,16,21,22,23,24,25,30,31,32,33,34 ]
+decor:
+  BLACK_STAINED_GLASS_PANE: [ 0,1,2,3,5,6,7,8,9,10,11,17,18,20,27,28,29,35,36,37,38,39,40,41,42,43,44 ]
+
+item_slot: 19
+enchant_form: ' &f{enchant} &6{level}&f продать за &6{price} exp'
+
+info_item:
+  slot: 4
+  material: NETHER_STAR
+  display_name: '&eИнформация'
+
+enchant_form_active:
+  material: ENCHANTED_BOOK
+  display_name: '&6{enchant}'
+  lore:
+    - ''
+    - '&7 Зачарование: &6{enchant} {level}'
+    - '&7 Цена: &6{price} exp'
+    - '&7 Продажа: &aВыключена'
+    - ''
+
+enchant_form_deactive:
+  material: BOOK
+  display_name: '&6{enchant}'
+  lore:
+    - ''
+    - '&7 Зачарование: &6{enchant} {level}'
+    - '&7 Цена: &6{price}'
+    - '&7 Продажа: &4Включена'
+    - ''
+
+confirm_item_error:
+  material: RED_STAINED_GLASS_PANE
+  slot: 26
+  display_name: '&cНечего продавать ;('
+  lore:
+    - '&f Для начала выбери'
+    - '&f что хочешь продать'
+
+confirm_item:
+  material: LIME_STAINED_GLASS_PANE
+  slot: 26
+  display_name: '&aПродать все'
+  lore:
+    - '&f Вы потеряете:'
+    - ''
+    - '{enchants}' #Заменится на список снимаемых зачарований по форме enchant_form
+    - ''
+    - '&f За это вы получите {exp} exp'
