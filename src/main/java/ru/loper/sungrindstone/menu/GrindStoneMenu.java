@@ -69,7 +69,6 @@ public class GrindStoneMenu extends Menu {
         int slot = event.getSlot();
 
         if (slot == configManager.getGrindItemSlot()) {
-            event.getWhoClicked().sendMessage("grindStone slot");
             handleGrindItemSlotClick(event);
             return;
         }
@@ -139,8 +138,8 @@ public class GrindStoneMenu extends Menu {
                     enchantName,
                     level,
                     price,
-                    new ItemBuilder(itemsConfig.getActiveBuilder().name(replacedActiveName).lore(replacedActiveLore).build()),
-                    new ItemBuilder(itemsConfig.getDeactiveBuilder().name(replacedDeactiveName).lore(replacedDeactiveLore).build())
+                    new ItemBuilder(itemsConfig.getActiveBuilder().build()).name(replacedActiveName).lore(replacedActiveLore),
+                    new ItemBuilder(itemsConfig.getDeactiveBuilder().build()).name(replacedDeactiveName).lore(replacedDeactiveLore)
             );
 
             addEnchantmentButton(enchantmentSlots.get(index++), enchantment);
