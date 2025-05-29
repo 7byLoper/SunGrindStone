@@ -5,6 +5,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -79,6 +80,15 @@ public class GrindStoneMenu extends Menu {
                 .ifPresent(button -> button.onClick(event));
 
         event.setCancelled(true);
+    }
+
+    @Override
+    public void onClose(@NotNull InventoryCloseEvent event) {
+        if (event.getPlayer() instanceof Player player) {
+            if (grindStoneItem != null) {
+                SunGrindStone.giveOrDropItem(player, grindStoneItem);
+            }
+        }
     }
 
     private void handleGrindItemSlotClick(InventoryClickEvent event) {
