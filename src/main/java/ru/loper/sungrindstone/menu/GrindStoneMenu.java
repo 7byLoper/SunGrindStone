@@ -96,6 +96,11 @@ public class GrindStoneMenu extends Menu {
         ItemStack cursorItem = event.getCursor();
 
         if (cursorItem != null && !cursorItem.equals(grindStoneItem)) {
+            if (configManager.hasBlockedMaterial(cursorItem.getType())) {
+                player.sendMessage(configManager.getBlockedMaterialMessage());
+                event.setCancelled(true);
+                return;
+            }
             Bukkit.getScheduler().runTaskLater(SunGrindStone.getInstance(), this::loadGrindStoneItem, 1L);
         } else if (cursorItem == null && grindStoneItem != null) {
             grindStoneItem = null;
@@ -123,6 +128,7 @@ public class GrindStoneMenu extends Menu {
         int index = 0;
         for (Map.Entry<Enchantment, Integer> enchantmentEntry : itemStack.getEnchantments().entrySet()) {
             if (index >= enchantmentSlots.size()) break;
+            if (configManager.hasBlockedEnchant(enchantmentEntry.getKey())) continue;
 
             String enchantName = configManager.getEnchantName(enchantmentEntry.getKey());
             String level = configManager.convertToRomanNumerals(enchantmentEntry.getValue());

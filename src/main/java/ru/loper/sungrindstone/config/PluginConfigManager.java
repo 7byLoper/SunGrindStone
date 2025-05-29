@@ -1,6 +1,7 @@
 package ru.loper.sungrindstone.config;
 
 import lombok.Getter;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -8,7 +9,9 @@ import org.bukkit.plugin.Plugin;
 import ru.loper.suncore.api.config.ConfigManager;
 import ru.loper.suncore.api.config.CustomConfig;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -18,8 +21,10 @@ public class PluginConfigManager extends ConfigManager {
     private Map<Enchantment, String> enchantmentNames;
 
     private int defaultEnchantPrice, grindItemSlot;
-    private String enchantmentForm, noPermissionMessage, reloadMessage;
+    private String enchantmentForm, noPermissionMessage, reloadMessage, blockedMaterialMessage;
     private ItemsConfig itemsConfig;
+    private List<Material> blockedMaterials;
+    private List<Enchantment> blockedEnchants;
 
     public PluginConfigManager(Plugin plugin) {
         super(plugin);
@@ -40,16 +45,45 @@ public class PluginConfigManager extends ConfigManager {
 
         enchantmentPrices = new HashMap<>();
         enchantmentNames = new HashMap<>();
+        blockedMaterials = new ArrayList<>();
+        blockedEnchants = new ArrayList<>();
 
         defaultEnchantPrice = getPricesConfig().getConfig().getInt("default_price");
         grindItemSlot = getGrindStoneMenuConfig().getConfig().getInt("item_slot");
         enchantmentForm = getGrindStoneMenuConfig().configMessage("enchant_form");
 
         noPermissionMessage = getMessagesConfig().configMessage("no_permissions");
+        reloadMessage = getMessagesConfig().configMessage("blocked_material");
         reloadMessage = getMessagesConfig().configMessage("reload");
 
-        loadEnchantPrices();
         loadEnchantNames();
+        loadEnchantPrices();
+        loadBlockedEnchants();
+        loadBlockedMaterials();
+    }
+
+    private void loadBlockedMaterials() {
+        for (String materialName : plugin.getConfig().getStringList("blocked_materials")) {
+            try {
+                Material material = Material.valueOf(materialName.toLowerCase());
+                blockedMaterials.add(material);
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().severe("Неизвестный материал: " + materialName);
+            }
+        }
+    }
+
+    private void loadBlockedEnchants() {
+        for (String key : plugin.getConfig().getStringList("blocked_enchants")) {
+            Enchantment enchantment = getEnchantmentByName(key);
+
+            if (enchantment == null) {
+                plugin.getLogger().warning("Неизвестное зачарование: " + key);
+                continue;
+            }
+
+            blockedEnchants.add(enchantment);
+        }
     }
 
     private void loadEnchantPrices() {
@@ -135,5 +169,13 @@ public class PluginConfigManager extends ConfigManager {
         if (level > 10) return String.valueOf(level);
 
         return romanSymbols[level - 1];
+    }
+
+    public boolean hasBlockedEnchant(Enchantment enchantment) {
+        return blockedEnchants.contains(enchantment);
+    }
+
+    public boolean hasBlockedMaterial(Material material) {
+        return blockedMaterials.contains(material);
     }
 }

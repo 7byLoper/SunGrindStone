@@ -1,0 +1,7 @@
+#Список предметов, которые нельзя положить в точило
+blocked_materials:
+  - TOTEM_OF_UNDYING
+
+#Список чар которые нельзя снять
+blocked_enchants:
+  - LURE
