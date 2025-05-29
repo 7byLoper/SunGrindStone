@@ -190,11 +190,16 @@ public class GrindStoneMenu extends Menu {
         List<String> lore = itemsConfig.getConfirmItemLore();
         List<String> updatedLore = new ArrayList<>();
 
+        int totalPrice = removeEnchantments
+                .stream()
+                .mapToInt(GrindStoneEnchantment::price)
+                .sum();
+
         for (String line : lore) {
             if (line.contains("{enchants}")) {
                 updatedLore.addAll(enchants);
             } else {
-                updatedLore.add(line);
+                updatedLore.add(line.replace("{exp}", String.valueOf(totalPrice)));
             }
         }
 
