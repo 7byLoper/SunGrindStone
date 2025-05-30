@@ -7,10 +7,27 @@ decor:
 item_slot: 19
 enchant_form: ' &f{enchant} &6{level}&f продать за &6{price} exp'
 
-info_item:
+enable_all:
   slot: 4
   material: NETHER_STAR
-  display_name: '&eИнформация'
+  glow: true
+  display_name: ' &#05FB00Включить всё'
+  lore:
+    - ' '
+    - ' &#05FB00▶ &fНажмите, чтобы включить'
+    - ' &fпродажу всех зачарований'
+    - ' '
+
+disable_all:
+  slot: 4
+  material: NETHER_STAR
+  glow: true
+  display_name: ' &#FF2222Выключить всё'
+  lore:
+    - ' '
+    - ' &#FF2222▶ &fНажмите, чтобы выключить'
+    - ' &fпродажу всех зачарований'
+    - ' '
 
 enchant_form_active:
   material: ENCHANTED_BOOK

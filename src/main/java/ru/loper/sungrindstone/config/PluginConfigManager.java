@@ -36,6 +36,7 @@ public class PluginConfigManager extends ConfigManager {
         addCustomConfig(new CustomConfig("translation.yml", plugin));
         addCustomConfig(new CustomConfig("messages.yml", plugin));
         addCustomConfig(new CustomConfig("prices.yml", plugin));
+        plugin.saveDefaultConfig();
         itemsConfig = new ItemsConfig(this);
     }
 
@@ -53,7 +54,7 @@ public class PluginConfigManager extends ConfigManager {
         enchantmentForm = getGrindStoneMenuConfig().configMessage("enchant_form");
 
         noPermissionMessage = getMessagesConfig().configMessage("no_permissions");
-        reloadMessage = getMessagesConfig().configMessage("blocked_material");
+        blockedMaterialMessage = getMessagesConfig().configMessage("blocked_material");
         reloadMessage = getMessagesConfig().configMessage("reload");
 
         loadEnchantNames();
@@ -65,7 +66,7 @@ public class PluginConfigManager extends ConfigManager {
     private void loadBlockedMaterials() {
         for (String materialName : plugin.getConfig().getStringList("blocked_materials")) {
             try {
-                Material material = Material.valueOf(materialName.toLowerCase());
+                Material material = Material.valueOf(materialName.toUpperCase());
                 blockedMaterials.add(material);
             } catch (IllegalArgumentException e) {
                 plugin.getLogger().severe("Неизвестный материал: " + materialName);

@@ -12,13 +12,13 @@ import java.util.List;
 public class ItemsConfig {
     private final PluginConfigManager configManager;
 
-    private ItemBuilder activeBuilder, deactiveBuilder, confirmBuilder, errorConfirmBuilder, infoItemBuilder;
+    private ItemBuilder activeBuilder, deactiveBuilder, confirmBuilder, errorConfirmBuilder, enableAllItemBuilder, disableAllItemBuilder;
 
     private List<String> deactiveItemLore, activeItemLore, confirmItemLore;
 
     private String deactiveItemName, activeItemName;
 
-    private int confirmItemSlot, errorConfirmItemSlot, infoItemSlot;
+    private int confirmItemSlot, errorConfirmItemSlot, enableAllItemSlot, disableAllItemSlot;
 
     public ItemsConfig(PluginConfigManager configManager) {
         this.configManager = configManager;
@@ -60,11 +60,18 @@ public class ItemsConfig {
             errorConfirmItemSlot = errorConfirmItemSection.getInt("slot");
         }
 
-        ConfigurationSection infoItemSection = config.getConfig().getConfigurationSection("info_item");
-        if (infoItemSection != null) {
-            infoItemBuilder = ItemBuilder.fromConfig(infoItemSection);
+        ConfigurationSection disableAllItemSection = config.getConfig().getConfigurationSection("disable_all");
+        if (disableAllItemSection != null) {
+            disableAllItemBuilder = ItemBuilder.fromConfig(disableAllItemSection);
 
-            infoItemSlot = infoItemSection.getInt("slot");
+            disableAllItemSlot = disableAllItemSection.getInt("slot");
+        }
+
+        ConfigurationSection enableAllItemSection = config.getConfig().getConfigurationSection("enable_all");
+        if (enableAllItemSection != null) {
+            enableAllItemBuilder = ItemBuilder.fromConfig(enableAllItemSection);
+
+            enableAllItemSlot = enableAllItemSection.getInt("slot");
         }
     }
 }
