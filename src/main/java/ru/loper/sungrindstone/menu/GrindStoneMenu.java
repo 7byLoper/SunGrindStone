@@ -298,11 +298,11 @@ public class GrindStoneMenu extends Menu {
     private void handleConfirmButtonClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player) || grindStoneItem == null) return;
 
-        GrindStoneEvent grindStoneEvent = new GrindStoneEvent(this, removeEnchantments);
+        GrindStoneEvent grindStoneEvent = new GrindStoneEvent(this, removeEnchantments, grindStoneItem);
         Bukkit.getPluginManager().callEvent(grindStoneEvent);
         if (grindStoneEvent.isCancelled()) return;
 
-        ItemStack updatedItem = grindStoneItem.clone();
+        ItemStack updatedItem = grindStoneEvent.getGrindStoneItem();
 
         grindStoneEvent.getRemoveEnchantments().forEach(e -> {
             updatedItem.removeEnchantment(e.enchantment());
