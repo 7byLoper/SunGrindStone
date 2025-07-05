@@ -8,7 +8,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.loper.sungrindstone.command.GrindStoneCommand;
 import ru.loper.sungrindstone.config.PluginConfigManager;
-import ru.loper.sungrindstone.listeners.ClickListener;
+import ru.loper.sungrindstone.listeners.GrindStoneListener;
 
 import java.util.Optional;
 
@@ -22,7 +22,7 @@ public final class SunGrindStone extends JavaPlugin {
     public void onEnable() {
         instance = this;
         configManager = new PluginConfigManager(this);
-        Bukkit.getPluginManager().registerEvents(new ClickListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new GrindStoneListener(this), this);
         Optional.ofNullable(getCommand("grindstone")).orElseThrow().setExecutor(new GrindStoneCommand(configManager));
     }
 
