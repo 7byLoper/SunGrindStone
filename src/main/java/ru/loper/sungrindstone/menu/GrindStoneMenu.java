@@ -15,6 +15,7 @@ import ru.loper.suncore.api.gui.Button;
 import ru.loper.suncore.api.gui.Menu;
 import ru.loper.suncore.api.items.ItemBuilder;
 import ru.loper.sungrindstone.SunGrindStone;
+import ru.loper.sungrindstone.api.event.GrindStoneEvent;
 import ru.loper.sungrindstone.config.ItemsConfig;
 import ru.loper.sungrindstone.config.PluginConfigManager;
 import ru.loper.sungrindstone.manager.GrindStoneEnchantment;
@@ -297,8 +298,13 @@ public class GrindStoneMenu extends Menu {
     private void handleConfirmButtonClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player) || grindStoneItem == null) return;
 
+        GrindStoneEvent grindStoneEvent = new GrindStoneEvent(this, removeEnchantments);
+        Bukkit.getPluginManager().callEvent(grindStoneEvent);
+        if (grindStoneEvent.isCancelled()) return;
+
         ItemStack updatedItem = grindStoneItem.clone();
-        removeEnchantments.forEach(e -> {
+
+        grindStoneEvent.getRemoveEnchantments().forEach(e -> {
             updatedItem.removeEnchantment(e.enchantment());
             player.giveExp(e.price());
         });
