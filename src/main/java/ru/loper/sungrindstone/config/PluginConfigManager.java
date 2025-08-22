@@ -17,7 +17,7 @@ import java.util.Map;
 
 @Getter
 public class PluginConfigManager extends ConfigManager {
-    private final String[] romanSymbols = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
+    private final Map<Integer, String> romanSymbols = new HashMap<>();
     private Map<Enchantment, Integer> enchantmentPrices;
     private Map<Enchantment, String> enchantmentNames;
 
@@ -174,11 +174,21 @@ public class PluginConfigManager extends ConfigManager {
         return enchantmentPrices.getOrDefault(enchant, defaultEnchantPrice);
     }
 
-    public String convertToRomanNumerals(int level) {
-        if (level < 1) return "";
-        if (level > 10) return String.valueOf(level);
+    private final static Integer[] INT_VALUES = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+    private final static String[] ROMAN_NUMERALS = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
 
-        return romanSymbols[level - 1];
+    public String convertToRomanNumerals(int level) {
+        if (romanSymbols.containsKey(level)) return romanSymbols.get(level);
+        int number = level;
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < INT_VALUES.length; i++) {
+            while (number >= INT_VALUES[i]) {
+                number -= INT_VALUES[i];
+                result.append(ROMAN_NUMERALS[i]);
+            }
+        }
+        romanSymbols.put(level, result.toString());
+        return romanSymbols.get(level);
     }
 
     public boolean hasBlockedEnchant(Enchantment enchantment) {
