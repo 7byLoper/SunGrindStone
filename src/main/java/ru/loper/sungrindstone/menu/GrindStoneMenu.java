@@ -1,8 +1,11 @@
 package ru.loper.sungrindstone.menu;
 
 import lombok.Getter;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -165,7 +168,7 @@ public class GrindStoneMenu extends Menu {
 
     private void createAndAddEnchantmentButton(ItemsConfig itemsConfig, Map.Entry<Enchantment, Integer> enchantmentEntry, int index) {
         String enchantName = configManager.getEnchantName(enchantmentEntry.getKey());
-        String level = configManager.convertToRomanNumerals(enchantmentEntry.getValue());
+        int level = enchantmentEntry.getValue();
         int price = configManager.getEnchantPrice(enchantmentEntry.getKey());
 
         String replacedActiveName = replaceEnchantPlaceholders(itemsConfig.getActiveItemName(), enchantName, level, price);
@@ -186,7 +189,7 @@ public class GrindStoneMenu extends Menu {
         addEnchantmentButton(enchantmentSlots.get(index), enchantment);
     }
 
-    private List<String> replaceLorePlaceholders(List<String> lore, String enchant, String level, int price) {
+    private List<String> replaceLorePlaceholders(List<String> lore, String enchant, int level, int price) {
         return lore.stream()
                 .map(line -> replaceEnchantPlaceholders(line, enchant, level, price))
                 .collect(Collectors.toList());
@@ -288,7 +291,7 @@ public class GrindStoneMenu extends Menu {
         List<String> enchants = removeEnchantments.stream()
                 .map(e -> configManager.getEnchantmentForm()
                         .replace("{enchant}", e.name())
-                        .replace("{level}", e.level())
+                        .replace("{level}", configManager.convertToRomanNumerals(e.level()))
                         .replace("{price}", String.valueOf(e.price())))
                 .toList();
 
@@ -318,6 +321,7 @@ public class GrindStoneMenu extends Menu {
         ItemStack updatedItem = grindStoneEvent.getGrindStoneItem();
 
         grindStoneEvent.getRemoveEnchantments().forEach(e -> {
+            removeCustomEnchantment(updatedItem, e.enchantment(), e.level());
             updatedItem.removeEnchantment(e.enchantment());
             player.giveExp(e.price());
         });
@@ -327,6 +331,31 @@ public class GrindStoneMenu extends Menu {
         loadEnchantmentButtons(updatedItem);
         setConfirmButton();
         player.updateInventory();
+    }
+
+    @SuppressWarnings("DataFlowIssue")
+    private void removeCustomEnchantment(ItemStack item, Enchantment enchantment, int level) {
+        if (item.lore() == null) return;
+        if (enchantment.getKey().namespace().equals(NamespacedKey.MINECRAFT)) return;
+
+        String displayName = PlainComponentSerializer.plain().serialize(enchantment.displayName(level));
+        int index = 0;
+        boolean contains = false;
+        for (Component line : item.lore()) {
+            String lineString = PlainComponentSerializer.plain().serialize(line);
+            if (lineString.equals(displayName)) {
+                contains = true;
+                break;
+            }
+            index++;
+        }
+
+        if (!contains)
+            return;
+
+        List<Component> updatedLore = new ArrayList<>(item.lore());
+        updatedLore.remove(index);
+        item.lore(updatedLore);
     }
 
     private void clearEnchantSlots() {
@@ -342,9 +371,9 @@ public class GrindStoneMenu extends Menu {
         setConfirmButton();
     }
 
-    private String replaceEnchantPlaceholders(String text, String enchant, String level, int price) {
+    private String replaceEnchantPlaceholders(String text, String enchant, int level, int price) {
         return text.replace("{enchant}", enchant)
-                .replace("{level}", level)
+                .replace("{level}", configManager.convertToRomanNumerals(level))
                 .replace("{price}", String.valueOf(price));
     }
 
