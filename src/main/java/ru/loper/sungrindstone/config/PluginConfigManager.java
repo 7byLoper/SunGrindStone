@@ -1,6 +1,7 @@
 package ru.loper.sungrindstone.config;
 
 import lombok.Getter;
+import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -142,7 +143,18 @@ public class PluginConfigManager extends ConfigManager {
     }
 
     public String getEnchantName(Enchantment enchantment) {
-        return enchantmentNames.getOrDefault(enchantment, enchantment.getKey().getKey());
+        if (enchantmentNames.containsKey(enchantment)) {
+            return enchantmentNames.get(enchantment);
+        }
+        else if (!enchantment.getKey().namespace().equals(NamespacedKey.MINECRAFT)) {
+            String[] split = PlainComponentSerializer.plain().serialize(enchantment.displayName(1))
+                    .split(" ");
+            if (split.length >= 1)
+                return split[0];
+            return enchantment.getKey().getKey();
+        } else {
+            return enchantment.getKey().getKey();
+        }
     }
 
     public CustomConfig getPricesConfig() {
