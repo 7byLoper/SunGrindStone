@@ -76,7 +76,7 @@
         <dependency>
             <groupId>com.github.7byloper</groupId>
             <artifactId>SunCore</artifactId>
-            <version>1.0.3.2-RELEASE</version> <!-- Укажите актуальную версию -->
+            <version>1.0.4.0-RELEASE</version> <!-- Укажите актуальную версию -->
             <scope>provided</scope>
         </dependency>
         <dependency>

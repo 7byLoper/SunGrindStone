@@ -2,6 +2,7 @@ package ru.loper.sungrindstone.menu;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -89,7 +90,19 @@ public class GrindStoneMenu extends Menu {
     public void onBottomInventoryClick(@NotNull InventoryClickEvent event) {
         if (event.isShiftClick()) {
             event.setCancelled(true);
+            if (!isNullOrAir(inventory.getItem(configManager.getGrindItemSlot())))
+                return;
+            if (event.getClickedInventory() == null) return;
+            if (isNullOrAir(event.getCurrentItem())) return;
+            ItemStack item = event.getCurrentItem().clone();
+            event.getClickedInventory().setItem(event.getSlot(), null);
+            inventory.setItem(configManager.getGrindItemSlot(), item);
+            handleGrindItemSlotClick(event);
         }
+    }
+
+    private boolean isNullOrAir(ItemStack item) {
+        return item == null || item.getType() == Material.AIR;
     }
 
     private void handleGrindItemSlotClick(InventoryClickEvent event) {
