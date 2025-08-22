@@ -133,9 +133,6 @@ public class PluginConfigManager extends ConfigManager {
     private Enchantment getEnchantmentByName(String name) {
         Enchantment enchantment;
 
-        enchantment = Enchantment.getByKey(NamespacedKey.minecraft(name.toLowerCase()));
-        if (enchantment != null) return enchantment;
-
         enchantment = Enchantment.getByKey(NamespacedKey.fromString(name.toLowerCase()));
         if (enchantment != null) return enchantment;
 
