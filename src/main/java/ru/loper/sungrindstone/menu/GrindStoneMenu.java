@@ -15,8 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.loper.suncore.api.config.CustomConfig;
+import ru.loper.suncore.api.gui.AsyncMenu;
 import ru.loper.suncore.api.gui.Button;
-import ru.loper.suncore.api.gui.Menu;
 import ru.loper.suncore.api.items.ItemBuilder;
 import ru.loper.sungrindstone.SunGrindStone;
 import ru.loper.sungrindstone.api.event.GrindStoneEvent;
@@ -27,7 +27,7 @@ import ru.loper.sungrindstone.manager.GrindStoneEnchantment;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class GrindStoneMenu extends Menu {
+public class GrindStoneMenu extends AsyncMenu {
     private final PluginConfigManager configManager;
     private final CustomConfig config;
     private final List<Integer> enchantmentSlots;
@@ -74,10 +74,7 @@ public class GrindStoneMenu extends Menu {
             return;
         }
 
-        buttons.stream()
-                .filter(button -> button.getSlots().contains(slot))
-                .findFirst()
-                .ifPresent(button -> button.onClick(event));
+        buttons.stream().filter(button -> button.getSlots().contains(slot)).findFirst().ifPresent(button -> button.onClick(event));
 
         event.setCancelled(true);
     }
@@ -85,23 +82,33 @@ public class GrindStoneMenu extends Menu {
     @Override
     public void onClose(@NotNull InventoryCloseEvent event) {
         if (event.getPlayer() instanceof Player player && grindStoneItem != null) {
-            SunGrindStone.giveOrDropItem(player, grindStoneItem);
+            player.getInventory().addItem(grindStoneItem).values().forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
         }
     }
 
     @Override
     public void onBottomInventoryClick(@NotNull InventoryClickEvent event) {
-        if (event.isShiftClick()) {
-            event.setCancelled(true);
-            if (!isNullOrAir(inventory.getItem(configManager.getGrindItemSlot())))
-                return;
-            if (event.getClickedInventory() == null) return;
-            if (isNullOrAir(event.getCurrentItem())) return;
-            ItemStack item = event.getCurrentItem().clone();
-            event.getClickedInventory().setItem(event.getSlot(), null);
-            inventory.setItem(configManager.getGrindItemSlot(), item);
-            handleGrindItemSlotClick(event);
+        if (!event.isShiftClick()) {
+            return;
         }
+        event.setCancelled(true);
+        if (!isNullOrAir(inventory.getItem(configManager.getGrindItemSlot()))) {
+            return;
+        }
+
+        if (event.getClickedInventory() == null) {
+            return;
+        }
+
+        if (isNullOrAir(event.getCurrentItem())) {
+            return;
+        }
+
+        ItemStack item = event.getCurrentItem().clone();
+        event.getClickedInventory().setItem(event.getSlot(), null);
+        inventory.setItem(configManager.getGrindItemSlot(), item);
+
+        handleGrindItemSlotClick(event);
     }
 
     private boolean isNullOrAir(ItemStack item) {
@@ -177,22 +184,13 @@ public class GrindStoneMenu extends Menu {
         List<String> replacedActiveLore = replaceLorePlaceholders(itemsConfig.getActiveItemLore(), enchantName, level, price);
         List<String> replacedDeactiveLore = replaceLorePlaceholders(itemsConfig.getDeactiveItemLore(), enchantName, level, price);
 
-        GrindStoneEnchantment enchantment = new GrindStoneEnchantment(
-                enchantmentEntry.getKey(),
-                enchantName,
-                level,
-                price,
-                new ItemBuilder(itemsConfig.getActiveBuilder().build()).name(replacedActiveName).lore(replacedActiveLore),
-                new ItemBuilder(itemsConfig.getDeactiveBuilder().build()).name(replacedDeactiveName).lore(replacedDeactiveLore)
-        );
+        GrindStoneEnchantment enchantment = new GrindStoneEnchantment(enchantmentEntry.getKey(), enchantName, level, price, new ItemBuilder(itemsConfig.getActiveBuilder().build()).name(replacedActiveName).lore(replacedActiveLore), new ItemBuilder(itemsConfig.getDeactiveBuilder().build()).name(replacedDeactiveName).lore(replacedDeactiveLore));
 
         addEnchantmentButton(enchantmentSlots.get(index), enchantment);
     }
 
     private List<String> replaceLorePlaceholders(List<String> lore, String enchant, int level, int price) {
-        return lore.stream()
-                .map(line -> replaceEnchantPlaceholders(line, enchant, level, price))
-                .collect(Collectors.toList());
+        return lore.stream().map(line -> replaceEnchantPlaceholders(line, enchant, level, price)).collect(Collectors.toList());
     }
 
     private void addEnchantmentButton(int slot, GrindStoneEnchantment grindStoneEnchantment) {
@@ -259,9 +257,7 @@ public class GrindStoneMenu extends Menu {
 
     public void setConfirmButton() {
         ItemsConfig itemsConfig = configManager.getItemsConfig();
-        int slot = removeEnchantments.isEmpty() ?
-                itemsConfig.getErrorConfirmItemSlot() :
-                itemsConfig.getConfirmItemSlot();
+        int slot = removeEnchantments.isEmpty() ? itemsConfig.getErrorConfirmItemSlot() : itemsConfig.getConfirmItemSlot();
 
         if (removeEnchantments.isEmpty()) {
             inventory.setItem(slot, itemsConfig.getErrorConfirmBuilder().build());
@@ -288,16 +284,9 @@ public class GrindStoneMenu extends Menu {
     }
 
     private List<String> buildConfirmButtonLore(ItemsConfig itemsConfig) {
-        List<String> enchants = removeEnchantments.stream()
-                .map(e -> configManager.getEnchantmentForm()
-                        .replace("{enchant}", e.name())
-                        .replace("{level}", configManager.convertToRomanNumerals(e.level()))
-                        .replace("{price}", String.valueOf(e.price())))
-                .toList();
+        List<String> enchants = removeEnchantments.stream().map(e -> configManager.getEnchantmentForm().replace("{enchant}", e.name()).replace("{level}", configManager.convertToRomanNumerals(e.level())).replace("{price}", String.valueOf(e.price()))).toList();
 
-        int totalPrice = removeEnchantments.stream()
-                .mapToInt(GrindStoneEnchantment::price)
-                .sum();
+        int totalPrice = removeEnchantments.stream().mapToInt(GrindStoneEnchantment::price).sum();
 
         List<String> updatedLore = new ArrayList<>();
         for (String line : itemsConfig.getConfirmItemLore()) {
@@ -350,8 +339,7 @@ public class GrindStoneMenu extends Menu {
             index++;
         }
 
-        if (!contains)
-            return;
+        if (!contains) return;
 
         List<Component> updatedLore = new ArrayList<>(item.lore());
         updatedLore.remove(index);
@@ -372,9 +360,7 @@ public class GrindStoneMenu extends Menu {
     }
 
     private String replaceEnchantPlaceholders(String text, String enchant, int level, int price) {
-        return text.replace("{enchant}", enchant)
-                .replace("{level}", configManager.convertToRomanNumerals(level))
-                .replace("{price}", String.valueOf(price));
+        return text.replace("{enchant}", enchant).replace("{level}", configManager.convertToRomanNumerals(level)).replace("{price}", String.valueOf(price));
     }
 
     private void loadDecoration() {

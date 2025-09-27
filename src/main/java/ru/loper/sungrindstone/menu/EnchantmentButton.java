@@ -30,13 +30,11 @@ public class EnchantmentButton extends Button {
         else deactivateEnchantment();
     }
 
-    //Активация зачарования (выключение продажи)
     public void activateEnchantment() {
         menu.getRemoveEnchantments().remove(enchantment);
         menu.getInventory().setItem(slot, enchantment.activeBuilder().build());
     }
 
-    //Деактивация зачарования (включение продажи)
     public void deactivateEnchantment() {
         menu.getRemoveEnchantments().add(enchantment);
         menu.getInventory().setItem(slot, enchantment.deactiveBuilder().build());
