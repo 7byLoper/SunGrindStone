@@ -1,49 +1,38 @@
 package ru.loper.sungrindstone.command;
 
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
 import org.jetbrains.annotations.NotNull;
-import ru.loper.suncore.api.command.AdvancedSmartCommandExecutor;
-import ru.loper.suncore.api.command.SmartCommandExecutor;
+import ru.loper.suncore.api.command.executor.BaseCommandExecutor;
+import ru.loper.suncore.api.command.register.CommandRegister;
+import ru.loper.sungrindstone.SunGrindStone;
 import ru.loper.sungrindstone.command.impl.ReloadSubCommand;
 import ru.loper.sungrindstone.config.PluginConfigManager;
-import ru.loper.sungrindstone.menu.GrindStoneMenu;
+import ru.loper.sungrindstone.menu.grindstone.GrindStoneMenu;
 
-
-public class GrindStoneCommand extends AdvancedSmartCommandExecutor {
+@CommandRegister(name = "grindstone", permission = "sungrindstone.command.use")
+public class GrindStoneCommand extends BaseCommandExecutor {
     private final PluginConfigManager configManager;
 
-    public GrindStoneCommand(PluginConfigManager configManager) {
-        this.configManager = configManager;
-        addSubCommand(new ReloadSubCommand(configManager), new Permission("sungrindstone.command.reload"), "reload");
+    public GrindStoneCommand(SunGrindStone plugin) {
+        this.configManager = plugin.getConfigManager();
+    }
+
+    public void handleNoArguments(@NotNull CommandSender sender) {
+        if (!(sender instanceof Player player)) {
+            return;
+        }
+
+        new GrindStoneMenu(configManager).show(player);
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
-        if (args.length == 0) {
-            if (sender instanceof Player player && player.hasPermission("sungrindstone.command.open")) {
-                new GrindStoneMenu(configManager).show(player);
-            }
-            return true;
-        }
-
-        SmartCommandExecutor.SubCommandWrapper subCommand = this.getCommandByLabel(args[0]);
-        if (subCommand == null) return true;
-
-        if (!sender.hasPermission(subCommand.getPermission())) {
-            sender.sendMessage(this.getDontPermissionMessage());
-            return true;
-        }
-
-        subCommand.getCommand().onCommand(sender, args);
-        return true;
-
-    }
-
-    @Override
-    public String getDontPermissionMessage() {
+    public String getNoPermissionMessage() {
         return configManager.getNoPermissionMessage();
+    }
+
+    @Override
+    public void registerWrappers() {
+        addSubCommand(new ReloadSubCommand(configManager));
     }
 }

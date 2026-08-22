@@ -1,0 +1,78 @@
+title: 'Точило'
+size: 45
+
+decoration:
+  BLACK_STAINED_GLASS_PANE: [ 0,1,2,3,5,6,7,8,9,10,11,17,18,20,27,28,29,35,36,37,38,39,40,41,42,43,44 ]
+
+settings:
+  enchants_slots: [ 12,13,14,15,16,21,22,23,24,25,30,31,32,33,34 ]
+  enchant_line: ' &#FF2222&l• &#FFA200{enchant} &#FFA200{level} &fза &e{price}'
+
+  enchant_forms:
+    active:
+      material: ENCHANTED_BOOK
+      display_name: ' &#FFA200{enchant} &#FFA200{level}'
+      lore:
+        - ' '
+        - ' &#FFA200&l&n▍&7 Зачарование: &#FFA200{enchant} &#FFA200{level}'
+        - ' &#FFA200&l&n▍&7 Цена: &e{price} &6exp'
+        - ' &#FFA200&l▍&7 Продажа: &#05FB00Выключена'
+        - ' '
+        - ' &#FFA200▶ &fНажмите, чтобы выбрать для продажи'
+        - ''
+    deactivate:
+      material: BOOK
+      display_name: ' &#FFA200{enchant} &#FFA200{level}'
+      lore:
+        - ' '
+        - ' &#FFA200&l&n▍&7 Зачарование: &#FFA200{enchant} &#FFA200{level}'
+        - ' &#FFA200&l&n▍&7 Цена: &e{price} &6exp'
+        - ' &#FFA200&l▍&7 Продажа: &#FF2222Включена'
+        - ' '
+        - ' &#FFA200▶ &fНажмите, чтобы отменить выбор для продажи'
+  confirm_item:
+    material: LIME_STAINED_GLASS_PANE
+    display_name: ' &#05FB00Продать всё'
+    lore:
+      - ''
+      - '&f Зачарования, которые будут потеряны: '
+      - ' '
+      - '{enchants}'
+      - ' '
+      - ' &#05FB00&l• &fЗа это вы получите: &e{exp} &fопыта'
+      - ''
+      - ' &#05FB00▶ &fНажмите, чтобы продать выбранные зачарования'
+
+  change_status:
+    disable:
+      material: NETHER_STAR
+      display_name: ' &#FF2222Выключить всё'
+      lore:
+        - ' '
+        - ' &#FF2222▶ &fНажмите, чтобы выключить'
+        - ' &fпродажу всех зачарований'
+        - ' '
+      glow: true
+    enable:
+      material: NETHER_STAR
+      display_name: ' &#05FB00Включить всё'
+      lore:
+        - ' '
+        - ' &#05FB00▶ &fНажмите, чтобы включить'
+        - ' &fпродажу всех зачарований'
+        - ' '
+      glow: true
+    slot: 4
+
+items:
+  confirm_item:
+    action: confirm
+    material: RED_STAINED_GLASS_PANE
+    display_name: ' &#FF2222Нечего продавать ;('
+    lore:
+      - ''
+      - ' &#FF2222&l&n▍&f Для продажи выбери зачарования, '
+      - ' &#FF2222&l▍&f которые хочешь обменять на опыт '
+      - ''
+    glow: true
+    slot: 26

@@ -1,9 +1,12 @@
 name: SunGrindStone
-version: '${project.version}'
 main: ru.loper.sungrindstone.SunGrindStone
+folia-supported: true
+
+version: '${version}'
 api-version: '1.16'
+
 authors: [Loper]
-description: Добавит на ваш сервер кастомное точило
 website: t.me/bySunDev
-commands:
-  grindstone: {}
+
+depend:
+  - SunCore

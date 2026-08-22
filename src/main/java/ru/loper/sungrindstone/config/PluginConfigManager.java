@@ -1,7 +1,10 @@
 package ru.loper.sungrindstone.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Getter;
-import net.kyori.adventure.text.serializer.plain.PlainComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -9,21 +12,18 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.plugin.Plugin;
 import ru.loper.suncore.api.config.ConfigManager;
 import ru.loper.suncore.api.config.CustomConfig;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import ru.loper.sungrindstone.config.settings.GrindStoneMenuSettings;
 
 @Getter
 public class PluginConfigManager extends ConfigManager {
-    private final Map<Integer, String> romanSymbols = new HashMap<>();
+    private final String[] romanSymbols = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"};
     private Map<Enchantment, Integer> enchantmentPrices;
     private Map<Enchantment, String> enchantmentNames;
 
     private int defaultEnchantPrice, grindItemSlot;
     private String enchantmentForm, noPermissionMessage, reloadMessage, blockedMaterialMessage;
-    private ItemsConfig itemsConfig;
+    private GrindStoneMenuSettings grindStoneMenuSettings;
+
     private List<Material> blockedMaterials;
     private List<Enchantment> blockedEnchants;
 
@@ -34,17 +34,17 @@ public class PluginConfigManager extends ConfigManager {
     @Override
     public void loadConfigs() {
         addCustomConfig(new CustomConfig("grind_stone_menu.yml", plugin));
+
+        addCustomConfig(new CustomConfig("menu/grind-stone.yml", plugin));
         addCustomConfig(new CustomConfig("translation.yml", plugin));
         addCustomConfig(new CustomConfig("messages.yml", plugin));
         addCustomConfig(new CustomConfig("prices.yml", plugin));
+
         plugin.saveDefaultConfig();
-        itemsConfig = new ItemsConfig(this);
     }
 
     @Override
     public void loadValues() {
-        itemsConfig.loadValues();
-
         enchantmentPrices = new HashMap<>();
         enchantmentNames = new HashMap<>();
         blockedMaterials = new ArrayList<>();
@@ -57,6 +57,9 @@ public class PluginConfigManager extends ConfigManager {
         noPermissionMessage = getMessagesConfig().configMessage("no_permissions");
         blockedMaterialMessage = getMessagesConfig().configMessage("blocked_material");
         reloadMessage = getMessagesConfig().configMessage("reload");
+
+        grindStoneMenuSettings = GrindStoneMenuSettings.fromSection(
+                getCustomConfig("menu/grind-stone.yml").getConfig());
 
         loadEnchantNames();
         loadEnchantPrices();
@@ -133,6 +136,9 @@ public class PluginConfigManager extends ConfigManager {
     private Enchantment getEnchantmentByName(String name) {
         Enchantment enchantment;
 
+        enchantment = Enchantment.getByKey(NamespacedKey.minecraft(name.toLowerCase()));
+        if (enchantment != null) return enchantment;
+
         enchantment = Enchantment.getByKey(NamespacedKey.fromString(name.toLowerCase()));
         if (enchantment != null) return enchantment;
 
@@ -140,18 +146,7 @@ public class PluginConfigManager extends ConfigManager {
     }
 
     public String getEnchantName(Enchantment enchantment) {
-        if (enchantmentNames.containsKey(enchantment)) {
-            return enchantmentNames.get(enchantment);
-        }
-        else if (!enchantment.getKey().namespace().equals(NamespacedKey.MINECRAFT)) {
-            String[] split = PlainComponentSerializer.plain().serialize(enchantment.displayName(1))
-                    .split(" ");
-            if (split.length >= 1)
-                return split[0];
-            return enchantment.getKey().getKey();
-        } else {
-            return enchantment.getKey().getKey();
-        }
+        return enchantmentNames.getOrDefault(enchantment, enchantment.getKey().getKey());
     }
 
     public CustomConfig getPricesConfig() {
@@ -174,21 +169,11 @@ public class PluginConfigManager extends ConfigManager {
         return enchantmentPrices.getOrDefault(enchant, defaultEnchantPrice);
     }
 
-    private final static Integer[] INT_VALUES = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
-    private final static String[] ROMAN_NUMERALS = {"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
-
     public String convertToRomanNumerals(int level) {
-        if (romanSymbols.containsKey(level)) return romanSymbols.get(level);
-        int number = level;
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < INT_VALUES.length; i++) {
-            while (number >= INT_VALUES[i]) {
-                number -= INT_VALUES[i];
-                result.append(ROMAN_NUMERALS[i]);
-            }
-        }
-        romanSymbols.put(level, result.toString());
-        return romanSymbols.get(level);
+        if (level < 1) return "";
+        if (level > 10) return String.valueOf(level);
+
+        return romanSymbols[level - 1];
     }
 
     public boolean hasBlockedEnchant(Enchantment enchantment) {

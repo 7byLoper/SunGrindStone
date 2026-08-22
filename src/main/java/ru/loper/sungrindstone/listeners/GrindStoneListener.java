@@ -8,7 +8,7 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import ru.loper.sungrindstone.SunGrindStone;
-import ru.loper.sungrindstone.menu.GrindStoneMenu;
+import ru.loper.sungrindstone.menu.grindstone.GrindStoneMenu;
 
 @RequiredArgsConstructor
 public class GrindStoneListener implements Listener {
